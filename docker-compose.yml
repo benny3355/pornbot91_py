@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    command: redis-server --requirepass 424243 --appendonly yes
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "16379:6379"
+    volumes:
+      - ./data:/data
+  # bot业务
+  pornbot:
+    image: jwstar/pybot
+    depends_on:
+      - redis
+    network_mode: host
+    container_name: pybot
+    restart: always
+    volumes:
+      - ./config:/config
+    environment:
+      TZ: Asia/Shanghai
+      #windows配置环境变量需要重启电脑
+      REDIS_HOST: 11.11.22.333
+      REDIS_PORT: 16379
+      REDIS_PASS: 424243
+      API_ID: 21231221
+      API_HASH: *************************
+      BOT_TOKEN: *****:**************************
+      GROUP_ID: 121231311
+    init: true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.80'
