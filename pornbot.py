@@ -48,12 +48,6 @@ async def send_welcome(event):
     await event.client.send_message(event.chat_id, '向我发送91视频链接，获取视频,有问题请留言 @bzhzq')
 
 
-@bot.on(events.NewMessage(pattern='/revideo'))
-async def send_welcome(event):
-    await event.client.send_message(event.chat_id, '开始执行爬取.....')
-    await page91DownIndex()
-    await event.client.send_message(event.chat_id, '执行爬取结束.....')
-
 
 @bot.on(events.NewMessage)
 async def echo_all(event):
