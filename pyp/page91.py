@@ -35,6 +35,17 @@ async def getVideoInfo91(url):
         title = await page.Jeval('#videodetails > h4', 'el => el.innerText')
         author = await page.Jeval('#videodetails-content > div:nth-child(2) > span.title-yakov > a:nth-child(1) > span',
                                   'el => el.innerText')
+
+        # 判断是否高清
+        length = await page.evaluate('''() => {
+               return $("#videodetails-content > a:nth-child(2)").length
+            }''')
+        if int(length) > 0:
+            if '.mp4' in realM3u8:
+                realM3u8 = realM3u8.replace('/mp43', '/mp4hd')
+            else:
+                realM3u8 = realM3u8.replace('/m3u8', '/m3u8hd')
+
     finally:
         # 关闭浏览器
         await page.close()

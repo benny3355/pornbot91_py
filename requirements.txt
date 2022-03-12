@@ -8,5 +8,4 @@ tenacity
 jieba
 APScheduler
 ffmpy3
-requests
 aiohttp
