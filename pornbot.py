@@ -112,8 +112,11 @@ async def page91DownIndex():
         mid, uid = await getFromredis(viewkey)
         if uid != 0:
             print('消息存在')
-            await bot.forward_messages(GROUP_ID, mid, uid)
-            continue
+            try:
+                await bot.forward_messages(GROUP_ID, mid, uid)
+                continue
+            except:
+                print('消息转发失败:', url)
         else:
             print("消息不存在，无法转发")
         videoinfo = await page91.getVideoInfo91(url)
