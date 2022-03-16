@@ -63,6 +63,18 @@ mkdir /pybot
 docker-compose up 
 ```
 
+### 本地运行
+python3.10以上
+```
+pip instal -r requirements.txt
+```
+
+修改代理
+
+```
+python pornbot.py
+```
+
 
 ### 测试
 
