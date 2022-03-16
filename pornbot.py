@@ -48,14 +48,14 @@ async def send_welcome(event):
     await event.client.send_message(event.chat_id, '向我发送91视频链接，获取视频,有问题请留言 @bzhzq')
 
 
-
 @bot.on(events.NewMessage)
 async def echo_all(event):
     text = event.text
-    if 'viewkey' in text:
+
+    if 'viewkey' in text:  # 处理91的视频
         sender = await event.get_sender()
 
-        if (sender.username is None):
+        if sender.username is None:
             await event.client.send_message(event.chat_id, '请设置用户名后再发送链接')
             return
         print("消息来自:" + str(sender.username), ":", event.text)
@@ -98,8 +98,36 @@ async def echo_all(event):
         await msg.delete()
         await saveToredis(viewkey, message.id, message.peer_id.user_id)
         shutil.rmtree(viewkey)
-        print()
-        print(str(datetime.datetime.now())+':'+ title+' 发送成功')
+        print(str(datetime.datetime.now()) + ':' + title + ' 发送成功')
+
+    elif 'hsex.men/video-' in text: #补充,不向redis存了
+        sender = await event.get_sender()
+        if sender.username is None:
+            await event.client.send_message(event.chat_id, '请设置用户名后再发送链接')
+            return
+        p=parse.urlparse(text)
+        viewkey= p.path.replace('/','')
+        print("消息来自:" + str(sender.username), ":",text)
+        videoInfo=await page91.getHs(text)
+        await util.download91(videoInfo.realM3u8, viewkey)
+
+        # 截图
+        await util.imgCover(videoInfo.imgUrl, viewkey + '/' + viewkey + '.jpg')
+        segstr = await util.seg(videoInfo.title)
+        msg = await event.reply(
+            '视频下载完成，正在上传。。。如果长时间没收到视频，请重新发送链接')
+        # 发送视频
+        await event.client.send_file(event.chat_id,
+                                               viewkey + '/' + viewkey + '.mp4',
+                                               supports_streaming=True,
+                                               thumb=viewkey + '/' + viewkey + '.jpg',
+                                               caption=captionTemplate % (
+                                                   videoInfo.title,'000', '#' + videoInfo.author, segstr),
+                                               reply_to=event.id,
+                                               )
+        await msg.delete()
+        shutil.rmtree(viewkey)
+        print(str(datetime.datetime.now()) + ':' + videoInfo.title + ' 发送成功')
 
 # 首页视频下载发送
 async def page91DownIndex():

@@ -23,24 +23,6 @@ async def seg(str):
     return '#' + " #".join(seg_list)
 
 
-# ffmpeg转码（暂时不用了）
-# async def downVideo2(realM3u8, title, cutms='00:00:5'):
-#     ff = ffmpy3.FFmpeg(
-#         inputs={realM3u8: None},
-#         outputs={title + '.mp4': '-y -ss ' + cutms}
-#     )
-#     await ff.run_async(stderr=asyncio.subprocess.PIPE)
-#     # line_buf = bytearray()
-#     # my_stderr =_ffmpeg_process.stderr
-#     # while True:
-#     #     in_buf = (await my_stderr.read(128)).replace(b'\r', b'\n')
-#     #     if not in_buf:
-#     #         break
-#     #     line_buf.extend(in_buf)
-#     #     while b'\n' in line_buf:
-#     #         line, _, line_buf = line_buf.partition(b'\n')
-#     #         print(str(line), file=sys.stderr)
-#     await ff.wait()
 
 
 @retry(stop=stop_after_attempt(4), wait=wait_fixed(10))
@@ -67,7 +49,7 @@ async def genIpaddr():
 async def run(url, viewkey):
     if '.mp4' in url:
         os.makedirs(viewkey)
-        filename= viewkey+'.mp4'
+        filename = viewkey + '.mp4'
     else:
         filename = re.search('([a-zA-Z0-9-_]+.ts)', url).group(1).strip()
 
@@ -80,6 +62,7 @@ async def run(url, viewkey):
                         break
                     fp.write(chunk)
                 print("\r", '任务文件 ', filename, ' 下载成功', end="", flush=True)
+
     # print("\r", '任务文件 ', filename, ' 下载成功', end="", flush=True)
 
 
@@ -93,9 +76,7 @@ async def down(url, viewkey):
         ts_list = list()
         concatfile = viewkey + '/' + viewkey + '.txt'
         if not os.path.isdir(viewkey):
-            # 不存在的话就创建子目录machine_learning
-            # 因为父目录存在,所有这里用mkdir也可以
-            # os.remove(viewkey)
+            # 尝试删除目录先
             try:
                 shutil.rmtree(viewkey)
             except:
@@ -135,7 +116,6 @@ async def download91(url, viewkey):
     start = datetime.datetime.now().replace(microsecond=0)
     ts_list, concatfile = await down(url, viewkey)
     loop = asyncio.new_event_loop()
-
     asyncio.set_event_loop(loop)
     tasks = []
     for url in ts_list:
@@ -145,3 +125,6 @@ async def download91(url, viewkey):
     merge(concatfile, viewkey)
     end = datetime.datetime.now().replace(microsecond=0)
     print('写文件及下载耗时：' + str(end - start))
+
+
+

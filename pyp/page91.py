@@ -1,4 +1,8 @@
 import asyncio
+import re
+from urllib.parse import unquote
+
+import aiohttp
 from faker import Faker
 from pyppeteer import launch
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -57,19 +61,19 @@ async def ini_browser():
     browser = await launch(headless=True, dumpio=True, devtools=False,
                            # userDataDir=r'F:\temporary',
                            args=[
-                                 # 关闭受控制提示：比如，Chrome正在受到自动测试软件的控制...
-                                 '--disable-infobars',
-                                 # 取消沙盒模式，沙盒模式下权限太小
-                                 '--no-sandbox',
-                                 '--ignore-certificate-errors',
-                                 '--disable-setuid-sandbox',
-                                 '--disable-features=TranslateUI',
-                                 '-–disable-gpu',
-                                 '--disable-software-rasterizer',
-                                 '--disable-dev-shm-usage',
-                                 # log 等级设置，如果出现一大堆warning，可以不使用默认的日志等级
-                                 '--log-level=3',
-                                 ])
+                               # 关闭受控制提示：比如，Chrome正在受到自动测试软件的控制...
+                               '--disable-infobars',
+                               # 取消沙盒模式，沙盒模式下权限太小
+                               '--no-sandbox',
+                               '--ignore-certificate-errors',
+                               '--disable-setuid-sandbox',
+                               '--disable-features=TranslateUI',
+                               '-–disable-gpu',
+                               '--disable-software-rasterizer',
+                               '--disable-dev-shm-usage',
+                               # log 等级设置，如果出现一大堆warning，可以不使用默认的日志等级
+                               '--log-level=3',
+                           ])
     page = await browser.newPage()
     await page.setUserAgent(fake.user_agent())
     await page.setExtraHTTPHeaders(
@@ -93,3 +97,21 @@ async def page91Index():
         await page.close()
         await browser.close()
     return urls
+
+
+async def getHs(url):
+    async with aiohttp.request("GET", url,
+                               # proxy='http://127.0.0.1:10809'
+                               ) as r:
+        # print(await r.text())
+        text = await r.text()
+        urls = re.findall('videoSrc = \'(.*?)\'', text)
+        titles = re.findall(r'<h3 class="panel-title">(.*?)<', text)
+        authors = re.findall(r'作者：<a href="user.htm\?author=(.*?)">', text)
+        imgs = re.findall(r'property="og:image" content="(.*?)"', text)
+        videoinfo = VideoInfo()
+        videoinfo.title = titles[0]
+        videoinfo.author =unquote(authors[0])
+        videoinfo.realM3u8 = urls[0]
+        videoinfo.imgUrl=imgs[0]
+        return videoinfo
