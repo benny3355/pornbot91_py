@@ -21,7 +21,7 @@
 docker预装环境，方便更换服务，一键启动
 
 
-### 软件安装
+### docker运行
 
 
 
@@ -61,6 +61,18 @@ mkdir /pybot
 
 ```yaml
 docker-compose up 
+```
+
+### 本地运行
+python3.10以上
+```
+pip instal -r requirements.txt
+```
+
+修改代理
+
+```
+python pornbot.py
 ```
 
 
