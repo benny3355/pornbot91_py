@@ -6,7 +6,9 @@ RUN mkdir /config  && apt-get update && apt-get -y install ffmpeg gcc apt-transp
 
 COPY . /app
 RUN pip3 --no-cache-dir install --user -r /app/requirements.txt
-
+#处理僵尸进程
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
 WORKDIR /app
 # -u print打印出来
 CMD ["python3", "-u", "pornbot.py"]
